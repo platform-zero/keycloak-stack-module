@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "keycloak",
+  "repo": "keycloak-stack-module",
+  "runtimeId": "keycloak",
+  "lifecycle": "active",
+  "dependencies": [
+    "stack-foundation"
+  ],
+  "overlays": [
+    "stack.compose/keycloak.yml",
+    "stack.config/keycloak",
+    "stack.containers/keycloak"
+  ]
+}
