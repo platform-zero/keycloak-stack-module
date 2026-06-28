@@ -8,8 +8,29 @@ KEYCLOAK_ADMIN_PASSWORD="${KEYCLOAK_ADMIN_PASSWORD:?ERROR: KEYCLOAK_ADMIN_PASSWO
 DOMAIN="${DOMAIN:?ERROR: DOMAIN not set}"
 OAUTH2_PROXY_CLIENT_SECRET="${OAUTH2_PROXY_CLIENT_SECRET:?ERROR: OAUTH2_PROXY_CLIENT_SECRET not set}"
 
-KC="/opt/keycloak/bin/kcadm.sh"
+KC_BIN="/opt/keycloak/bin/kcadm.sh"
+KC="kc_retry"
 GROUPS_CLIENT_SCOPE_ID=""
+
+kc_retry() {
+  local attempt=1
+  local max_attempts="${KEYCLOAK_CONFIGURE_RETRY_ATTEMPTS:-40}"
+  local delay_seconds="${KEYCLOAK_CONFIGURE_RETRY_DELAY_SECONDS:-3}"
+  local status
+
+  while true; do
+    if "$KC_BIN" "$@"; then
+      return 0
+    fi
+    status=$?
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      return "$status"
+    fi
+    echo "[keycloak-configure] kcadm command failed with status $status; retrying in ${delay_seconds}s ($attempt/$max_attempts)" >&2
+    sleep "$delay_seconds"
+    attempt=$((attempt + 1))
+  done
+}
 
 # Runtime client registry.
 #
