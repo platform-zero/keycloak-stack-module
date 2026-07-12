@@ -1,0 +1,46 @@
+{
+  "configuration": {
+    "schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    }
+  },
+  "id": "keycloak",
+  "overlays": [
+    "stack.compose/keycloak.yml",
+    "stack.config/keycloak",
+    "stack.containers/keycloak",
+    "stack.containers/test-runner/playwright-tests/tests/deep/oidc/keycloak.spec.ts"
+  ],
+  "provides": [
+    {
+      "capability": "module:keycloak",
+      "version": "1"
+    }
+  ],
+  "requires": [
+    {
+      "capability": "module:stack-foundation",
+      "version": "1"
+    }
+  ],
+  "schemaVersion": 1,
+  "services": [
+    {
+      "name": "keycloak",
+      "routes": [],
+      "volumes": []
+    },
+    {
+      "name": "keycloak-bootstrap",
+      "routes": [],
+      "volumes": []
+    }
+  ],
+  "verification": {
+    "commands": [
+      "test -f stack.module.json && test -f module.json"
+    ]
+  }
+}
