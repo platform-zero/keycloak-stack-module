@@ -1,0 +1,77 @@
+---
+schemaVersion: 1
+module: "keycloak"
+target: "core"
+services:
+  keycloak-bootstrap:
+    image: "timescale/timescaledb@sha256:0af03ecf697825f6ddae76fd275d16bf46007bed6d00eb3d754779cb7db96fa6"
+    containerName: "keycloak-bootstrap"
+    lifecycle: "oneshot"
+    updatePolicy: "pinned"
+    placement: "rootful"
+    dependencies:
+      postgres: "healthy"
+    environment:
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: "${POSTGRES_ADMIN_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_ADMIN_PASSWORD}"
+      POSTGRES_DB: "postgres"
+      POSTGRES_KEYCLOAK_PASSWORD: "${POSTGRES_KEYCLOAK_PASSWORD:-}"
+    networks:
+    - "postgres"
+    volumes:
+    - "./configs/postgres/ensure-keycloak-db.sh:/ensure-keycloak-db.sh:ro"
+    entrypoint:
+    - "/bin/bash"
+    - "/ensure-keycloak-db.sh"
+    restart: "no"
+  keycloak:
+    image: "webservices/keycloak:local-build"
+    build:
+      context: "."
+      containerfile: "./stack.containers/keycloak/Dockerfile"
+    containerName: "keycloak"
+    lifecycle: "daemon"
+    updatePolicy: "pinned"
+    placement: "rootful"
+    dependencies:
+      keycloak-bootstrap: "completed"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "${KEYCLOAK_ADMIN_USER:-admin}"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-}"
+      KC_DB: "postgres"
+      KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
+      KC_DB_USERNAME: "keycloak"
+      KC_DB_PASSWORD: "${POSTGRES_KEYCLOAK_PASSWORD:-}"
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
+      KC_HOSTNAME: "https://keycloak.${DOMAIN}"
+      KC_PROXY_HEADERS: "xforwarded"
+      JAVA_OPTS_KC_HEAP: "-XX:InitialRAMPercentage=35 -XX:MaxRAMPercentage=60"
+    networks:
+      caddy: null
+      postgres: null
+    volumes:
+    - "./configs/keycloak/realm:/opt/keycloak/data/import:ro"
+    health:
+      test:
+      - "CMD-SHELL"
+      - "bash -ec \"exec 3<>/dev/tcp/127.0.0.1/9000 && \\\nprintf 'GET /health/ready\
+        \ HTTP/1.0\\r\\nHost: 127.0.0.1\\r\\n\\r\\n' >&3 && \\\ngrep -q ' 200 ' <&3\"\
+        \n"
+      interval: "10s"
+      timeout: "5s"
+      retries: 60
+      start_period: "420s"
+    command:
+    - "start"
+    - "--import-realm"
+    restart: "unless-stopped"
+    resources:
+      limits:
+        memory: "${KEYCLOAK_MEMORY_LIMIT:-2G}"
+        cpus: "${KEYCLOAK_CPU_LIMIT:-2.0}"
+networks: {}
+volumes: {}
