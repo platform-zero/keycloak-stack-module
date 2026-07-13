@@ -20,7 +20,8 @@
     "stack.compose/keycloak.yml",
     "stack.config/keycloak",
     "stack.containers/keycloak",
-    "stack.containers/test-runner/playwright-tests/tests/deep/oidc/keycloak.spec.ts"
+    "stack.containers/test-runner/playwright-tests/tests/deep/oidc/keycloak.spec.ts",
+    "stack.runtime.yaml"
   ],
   "testAssets": []
 }

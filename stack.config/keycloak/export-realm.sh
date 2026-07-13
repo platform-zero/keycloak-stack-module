@@ -9,7 +9,7 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
-docker exec keycloak /opt/keycloak/bin/kc.sh export \
+podman exec keycloak /opt/keycloak/bin/kc.sh export \
   --realm "$realm" \
   --file "$output" \
   --users different_files
