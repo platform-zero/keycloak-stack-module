@@ -30,7 +30,7 @@ services:
     image: "webservices/keycloak:local-build"
     build:
       context: "."
-      containerfile: "./stack.containers/keycloak/Dockerfile"
+      containerfile: "./stack.containers/keycloak/Containerfile"
     containerName: "keycloak"
     lifecycle: "daemon"
     updatePolicy: "pinned"
