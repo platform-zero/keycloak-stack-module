@@ -6,7 +6,7 @@
 - Lifecycle: `active`
 
 ## Owned overlays
-- `stack.compose/keycloak.yml`
+- `stack.runtime.yaml`
 - `stack.config/keycloak`
 - `stack.containers/keycloak`
 
