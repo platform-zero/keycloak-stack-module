@@ -199,8 +199,8 @@ ensure_confidential_client() {
   local pkce_method="${6:-}"
 
   if [ -z "$client_secret" ]; then
-    echo "[keycloak-configure] skipping $client_id_value client because its secret is empty"
-    return 0
+    echo "[keycloak-configure] ERROR: enabled OIDC client '$client_id_value' has an empty secret" >&2
+    exit 1
   fi
 
   client_json="$(mktemp)"

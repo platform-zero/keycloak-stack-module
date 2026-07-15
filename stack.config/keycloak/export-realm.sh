@@ -4,8 +4,8 @@ set -euo pipefail
 realm="${KEYCLOAK_REALM:-webservices}"
 output="${1:-/tmp/${realm}-realm-export.json}"
 
-if ! command -v docker >/dev/null 2>&1; then
-  printf 'docker is required to export the Keycloak realm\n' >&2
+if ! command -v podman >/dev/null 2>&1; then
+  printf 'podman is required to export the Keycloak realm\n' >&2
   exit 1
 fi
 
