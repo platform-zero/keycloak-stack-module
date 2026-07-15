@@ -7,7 +7,7 @@ const keycloakBaseUrl = process.env.KEYCLOAK_URL || serviceUrl('keycloak');
 test.describe('Keycloak OIDC smoke', () => {
   test('serves the webservices realm discovery document', async ({ request }) => {
     const response = await request.get(`${keycloakBaseUrl}/realms/${keycloakRealm}/.well-known/openid-configuration`);
-    expect(response.ok()).toBeTruthy();
+    expect(response.status()).toBe(200);
 
     const discovery = await response.json();
     expect(discovery.issuer).toBe(`${keycloakBaseUrl}/realms/${keycloakRealm}`);
