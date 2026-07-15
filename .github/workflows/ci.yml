@@ -25,7 +25,7 @@ jobs:
 
       - name: Check out shared module runner
         env:
-          GENERATOR_REF: d9887bd9b53d3e1ae7ef7ce520fa3c1d7cd262dd
+          GENERATOR_REF: 3659ba0386fe91c9f1043562669f8aa3128408ef
         run: |
           git init "$RUNNER_TEMP/sso-stack-generator"
           git -C "$RUNNER_TEMP/sso-stack-generator" remote add origin https://github.com/platform-zero/sso-stack-generator.git
