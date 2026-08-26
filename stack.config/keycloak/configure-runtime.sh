@@ -367,7 +367,7 @@ ensure_confidential_client \
 ensure_confidential_client "bookstack" "BookStack" "${BOOKSTACK_OAUTH_SECRET:-}" "[\"https://bookstack.$DOMAIN/oidc/callback\"]" "[\"https://bookstack.$DOMAIN\"]"
 # webservices-component-end bookstack
 # webservices-component-start sogo
-ensure_confidential_client "sogo" "SOGo" "${SOGO_OAUTH_SECRET:-}" "[\"https://sogo.$DOMAIN/*\"]" "[\"https://sogo.$DOMAIN\"]"
+ensure_confidential_client "sogo" "SOGo" "${SOGO_OAUTH_SECRET:-}" "[\"https://sogo.$DOMAIN/SOGo/\"]" "[\"https://sogo.$DOMAIN\"]"
 ensure_user_property_claim_mapper "sogo" "sogo-dovecot-email" "email" "email"
 # webservices-component-end sogo
 # webservices-component-start jellyfin
