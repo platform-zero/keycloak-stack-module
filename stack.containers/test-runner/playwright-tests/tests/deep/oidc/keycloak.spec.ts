@@ -43,7 +43,14 @@ test.describe('Keycloak OIDC smoke', () => {
   test('protects the low-risk whoami route through the Keycloak auth gateway', async ({ request }) => {
     const protectedResponse = await request.get(serviceUrl('keycloak-whoami'), { maxRedirects: 0 });
     expect([302, 303]).toContain(protectedResponse.status());
-    expect(protectedResponse.headers().location).toContain(serviceUrl('keycloak-auth', '/oauth2/start'));
+    const protectedLocation = new URL(protectedResponse.headers().location || '');
+    expect(protectedLocation.origin).toBe(new URL(keycloakBaseUrl).origin);
+    expect(protectedLocation.pathname).toBe(`/realms/${keycloakRealm}/protocol/openid-connect/auth`);
+    expect(protectedLocation.searchParams.get('client_id')).toBe('webservices-edge');
+    const protectedState = protectedLocation.searchParams.get('state') || '';
+    expect(protectedState.slice(protectedState.indexOf(':') + 1)).toBe(
+      new URL(serviceUrl('keycloak-whoami')).toString()
+    );
 
     const authStart = await request.get(
       serviceUrl('keycloak-auth', `/oauth2/start?rd=${encodeURIComponent(serviceUrl('keycloak-whoami'))}`),
