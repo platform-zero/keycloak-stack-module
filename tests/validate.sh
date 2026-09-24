@@ -11,4 +11,6 @@ if [ -z "$validator" ]; then
   done
 fi
 [ -n "$validator" ] || { printf '[module-contract] set WEBSERVICES_MODULE_CONTRACT_VALIDATOR or keep sso-stack-generator next to modules workspace\n' >&2; exit 1; }
-exec "$validator" validate "$repo_root"
+"$validator" validate "$repo_root"
+grep -Fq 'ensure_confidential_client "huly" "Huly"' "$repo_root/stack.config/keycloak/configure-runtime.sh"
+grep -Fq '/_accounts/auth/openid/callback' "$repo_root/stack.config/keycloak/configure-runtime.sh"

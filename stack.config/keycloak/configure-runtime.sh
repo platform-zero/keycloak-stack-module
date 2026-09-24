@@ -396,7 +396,7 @@ ensure_confidential_client "planka" "Planka" "${PLANKA_OAUTH_SECRET:-}" "[\"http
 ensure_confidential_client "vaultwarden" "Vaultwarden" "${VAULTWARDEN_OAUTH_SECRET:-}" "[\"https://vaultwarden.$DOMAIN/identity/connect/oidc-signin\"]" "[\"https://vaultwarden.$DOMAIN\"]" "S256"
 # webservices-component-end vaultwarden
 # webservices-component-start huly
-ensure_confidential_client "huly" "Huly" "${HULY_OPENID_CLIENT_SECRET:-}" "[\"https://huly.$DOMAIN/auth/openid/callback\"]" "[\"https://huly.$DOMAIN\"]"
+ensure_confidential_client "huly" "Huly" "${HULY_OPENID_CLIENT_SECRET:-}" "[\"https://huly.$DOMAIN/_accounts/auth/openid/callback\"]" "[\"https://huly.$DOMAIN\"]"
 # webservices-component-end huly
 
 echo "[keycloak-configure] runtime Keycloak clients are ready"
