@@ -14,3 +14,4 @@ fi
 "$validator" validate "$repo_root"
 grep -Fq 'ensure_confidential_client "huly" "Huly"' "$repo_root/stack.config/keycloak/configure-runtime.sh"
 grep -Fq '/_accounts/auth/openid/callback' "$repo_root/stack.config/keycloak/configure-runtime.sh"
+grep -Fq 'KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"' "$repo_root/stack.runtime.yaml"

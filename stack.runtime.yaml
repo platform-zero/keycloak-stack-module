@@ -48,6 +48,7 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_METRICS_ENABLED: "true"
       KC_HOSTNAME: "https://keycloak.${DOMAIN}"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       KC_PROXY_HEADERS: "xforwarded"
       JAVA_OPTS_KC_HEAP: "-XX:InitialRAMPercentage=35 -XX:MaxRAMPercentage=60"
     networks:
