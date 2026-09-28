@@ -49,6 +49,7 @@ services:
       KC_METRICS_ENABLED: "true"
       KC_HOSTNAME: "https://keycloak.${DOMAIN}"
       KC_PROXY_HEADERS: "xforwarded"
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
       JAVA_OPTS_KC_HEAP: "-XX:InitialRAMPercentage=35 -XX:MaxRAMPercentage=60"
     networks:
       caddy: null
