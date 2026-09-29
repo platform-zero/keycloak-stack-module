@@ -363,6 +363,13 @@ ensure_confidential_client \
   "[\"https://keycloak-auth.$DOMAIN\"]" \
   "S256"
 
+# webservices-component-start ntfy
+ensure_confidential_client "ntfy-native" "Ntfy native password validation" "${NTFY_NATIVE_CLIENT_SECRET:-}" "[]" "[]"
+ntfy_native_client_id="$("$KC" get clients -r "$REALM" -q clientId=ntfy-native | first_json_id)"
+"$KC" update "clients/$ntfy_native_client_id" -r "$REALM" \
+  -s standardFlowEnabled=false -s directAccessGrantsEnabled=true >/dev/null
+# webservices-component-end ntfy
+
 # webservices-component-start bookstack
 ensure_confidential_client "bookstack" "BookStack" "${BOOKSTACK_OAUTH_SECRET:-}" "[\"https://bookstack.$DOMAIN/oidc/callback\"]" "[\"https://bookstack.$DOMAIN\"]"
 # webservices-component-end bookstack
