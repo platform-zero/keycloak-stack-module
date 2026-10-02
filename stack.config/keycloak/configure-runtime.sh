@@ -21,8 +21,9 @@ kc_retry() {
   while true; do
     if "$KC_BIN" "$@"; then
       return 0
+    else
+      status=$?
     fi
-    status=$?
     if [ "$attempt" -ge "$max_attempts" ]; then
       return "$status"
     fi
@@ -65,6 +66,35 @@ json_id_for_name() {
       h
     }
     /^  "name"[[:space:]]*:[[:space:]]*"'"$expected_name"'"/ {
+      g
+      p
+      q
+    }
+  '
+}
+
+json_id_for_alias() {
+  local expected_alias="$1"
+  sed -n '
+    /"id"[[:space:]]*:/ {
+      s/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/
+      h
+    }
+    /"alias"[[:space:]]*:[[:space:]]*"'"$expected_alias"'"/ {
+      g
+      p
+      q
+    }
+  '
+}
+
+json_id_for_otp_execution() {
+  sed -n '
+    /"id"[[:space:]]*:/ {
+      s/.*"id"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/
+      h
+    }
+    /"displayName"[[:space:]]*:[[:space:]]*"[^"]*Conditional OTP"/ {
       g
       p
       q
@@ -362,6 +392,38 @@ ensure_confidential_client \
   "[\"https://keycloak-auth.$DOMAIN/oauth2/callback\"]" \
   "[\"https://keycloak-auth.$DOMAIN\"]" \
   "S256"
+
+# webservices-component-start ntfy
+ensure_confidential_client "ntfy-native" "Ntfy native password validation" "${NTFY_NATIVE_CLIENT_SECRET:-}" "[]" "[]"
+ntfy_native_client_id="$("$KC" get clients -r "$REALM" -q clientId=ntfy-native | first_json_id)"
+"$KC" update "clients/$ntfy_native_client_id" -r "$REALM" \
+  -s standardFlowEnabled=false -s directAccessGrantsEnabled=true >/dev/null
+ntfy_native_flow_id="$("$KC" get authentication/flows -r "$REALM" | json_id_for_alias ntfy-native-password)"
+if [ -z "$ntfy_native_flow_id" ]; then
+  ntfy_native_flow_copy="$(mktemp)"
+  printf '{"newName":"ntfy-native-password"}\n' > "$ntfy_native_flow_copy"
+  "$KC" create 'authentication/flows/direct%20grant/copy' -r "$REALM" -f "$ntfy_native_flow_copy" >/dev/null
+  rm -f "$ntfy_native_flow_copy"
+  ntfy_native_flow_id="$("$KC" get authentication/flows -r "$REALM" | json_id_for_alias ntfy-native-password)"
+fi
+if [ -z "$ntfy_native_flow_id" ]; then
+  echo '[keycloak-configure] ERROR: ntfy native direct grant flow was not created' >&2
+  exit 1
+fi
+ntfy_native_otp_id="$("$KC" get 'authentication/flows/ntfy-native-password/executions' -r "$REALM" | json_id_for_otp_execution)"
+if [ -z "$ntfy_native_otp_id" ]; then
+  echo '[keycloak-configure] ERROR: ntfy native conditional OTP execution was not found' >&2
+  exit 1
+fi
+ntfy_native_otp_json="$(mktemp)"
+printf '{"id":"%s","requirement":"DISABLED"}\n' "$ntfy_native_otp_id" > "$ntfy_native_otp_json"
+"$KC" update 'authentication/flows/ntfy-native-password/executions' -r "$REALM" -f "$ntfy_native_otp_json" >/dev/null
+rm -f "$ntfy_native_otp_json"
+ntfy_native_binding_json="$(mktemp)"
+printf '{"authenticationFlowBindingOverrides":{"direct_grant":"%s"}}\n' "$ntfy_native_flow_id" > "$ntfy_native_binding_json"
+"$KC" update "clients/$ntfy_native_client_id" -r "$REALM" -f "$ntfy_native_binding_json" >/dev/null
+rm -f "$ntfy_native_binding_json"
+# webservices-component-end ntfy
 
 # webservices-component-start bookstack
 ensure_confidential_client "bookstack" "BookStack" "${BOOKSTACK_OAUTH_SECRET:-}" "[\"https://bookstack.$DOMAIN/oidc/callback\"]" "[\"https://bookstack.$DOMAIN\"]"
