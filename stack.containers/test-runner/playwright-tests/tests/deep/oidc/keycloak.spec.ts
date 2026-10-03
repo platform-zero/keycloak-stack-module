@@ -21,6 +21,7 @@ const oidcRedirectContracts = [
       `/upstream/callback/${process.env.MATRIX_AUTHENTICATION_SERVICE_UPSTREAM_PROVIDER_ID || '01JY9K7VKQ23V93TP9FB9VYQVM'}`
     ),
   ],
+  ['librechat', serviceUrl('ai', '/oauth/openid/callback')],
   ['planka', serviceUrl('planka', '/oidc-callback')],
   ['vaultwarden', serviceUrl('vaultwarden', '/identity/connect/oidc-signin')],
   ['test-runner', 'http://localhost:8080/callback'],

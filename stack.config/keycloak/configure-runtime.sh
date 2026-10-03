@@ -389,6 +389,9 @@ ensure_confidential_client "mastodon" "Mastodon" "${MASTODON_OAUTH_SECRET:-}" "[
 ensure_confidential_client "matrix" "Matrix Synapse" "${MATRIX_OAUTH_SECRET:-}" "[\"https://matrix.$DOMAIN/_synapse/client/oidc/callback\"]" "[\"https://matrix.$DOMAIN\",\"https://element.$DOMAIN\"]"
 ensure_confidential_client "matrix-authentication-service" "Matrix Authentication Service" "${MATRIX_AUTHENTICATION_SERVICE_OAUTH_SECRET:-}" "[\"https://matrix-auth.$DOMAIN/upstream/callback/${MATRIX_AUTHENTICATION_SERVICE_UPSTREAM_PROVIDER_ID:-01JY9K7VKQ23V93TP9FB9VYQVM}\"]" "[\"https://matrix-auth.$DOMAIN\",\"https://matrix.$DOMAIN\",\"https://element.$DOMAIN\"]"
 # webservices-component-end matrix
+# webservices-component-start librechat
+ensure_confidential_client "librechat" "LibreChat" "${LIBRECHAT_OAUTH_SECRET:-}" "[\"https://ai.$DOMAIN/oauth/openid/callback\"]" "[\"https://ai.$DOMAIN\"]" "S256"
+# webservices-component-end librechat
 # webservices-component-start planka
 ensure_confidential_client "planka" "Planka" "${PLANKA_OAUTH_SECRET:-}" "[\"https://planka.$DOMAIN/oidc-callback\"]" "[\"https://planka.$DOMAIN\"]"
 # webservices-component-end planka
