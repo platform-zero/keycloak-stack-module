@@ -355,6 +355,65 @@ EOF_MAPPER
   "$KC" create "clients/$client_id/protocol-mappers/models" -r "$REALM" -f "$mapper_json" >/dev/null
 }
 
+ensure_mail_resource_client() {
+  local secret="${P0_MAIL_OAUTH_SECRET:-}"
+  if [ -z "$secret" ]; then
+    echo "[keycloak-configure] ERROR: p0-mail introspection secret is empty" >&2
+    exit 1
+  fi
+  local client_json client_uuid
+  client_json="$(mktemp)"
+  cat > "$client_json" <<EOF_P0_MAIL
+{
+  "clientId": "p0-mail",
+  "name": "Platform Zero mail token introspection",
+  "enabled": true,
+  "publicClient": false,
+  "secret": "$secret",
+  "protocol": "openid-connect",
+  "standardFlowEnabled": false,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": false,
+  "serviceAccountsEnabled": false,
+  "fullScopeAllowed": false
+}
+EOF_P0_MAIL
+  client_uuid="$("$KC" get clients -r "$REALM" -q clientId=p0-mail | first_json_id)"
+  if [ -z "$client_uuid" ]; then
+    "$KC" create clients -r "$REALM" -f "$client_json" >/dev/null
+  else
+    "$KC" update "clients/$client_uuid" -r "$REALM" -f "$client_json" >/dev/null
+  fi
+  rm -f "$client_json"
+}
+
+ensure_mail_audience_mapper() {
+  local client_id_value="$1"
+  local client_uuid mapper_json
+  client_uuid="$("$KC" get clients -r "$REALM" -q clientId="$client_id_value" | first_json_id)"
+  [ -n "$client_uuid" ] || return 1
+  if "$KC" get "clients/$client_uuid/protocol-mappers/models" -r "$REALM" | grep -q '"name"[[:space:]]*:[[:space:]]*"p0-mail-audience"'; then
+    return 0
+  fi
+  mapper_json="$(mktemp)"
+  cat > "$mapper_json" <<'EOF_P0_MAIL_MAPPER'
+{
+  "name": "p0-mail-audience",
+  "protocol": "openid-connect",
+  "protocolMapper": "oidc-audience-mapper",
+  "consentRequired": false,
+  "config": {
+    "included.client.audience": "p0-mail",
+    "id.token.claim": "false",
+    "access.token.claim": "true",
+    "introspection.token.claim": "true"
+  }
+}
+EOF_P0_MAIL_MAPPER
+  "$KC" create "clients/$client_uuid/protocol-mappers/models" -r "$REALM" -f "$mapper_json" >/dev/null
+  rm -f "$mapper_json"
+}
+
 ensure_confidential_client \
   "webservices-edge" \
   "Webservices edge auth gateway" \
@@ -369,6 +428,8 @@ ensure_confidential_client "bookstack" "BookStack" "${BOOKSTACK_OAUTH_SECRET:-}"
 # webservices-component-start sogo
 ensure_confidential_client "sogo" "SOGo" "${SOGO_OAUTH_SECRET:-}" "[\"https://sogo.$DOMAIN/SOGo/\"]" "[\"https://sogo.$DOMAIN\"]"
 ensure_user_property_claim_mapper "sogo" "sogo-dovecot-email" "email" "email"
+ensure_mail_resource_client
+ensure_mail_audience_mapper "sogo"
 # webservices-component-end sogo
 # webservices-component-start jellyfin
 ensure_confidential_client "jellyfin" "Jellyfin" "${JELLYFIN_OIDC_SECRET:-}" "[\"https://jellyfin.$DOMAIN/sso/OID/redirect/keycloak\"]" "[\"https://jellyfin.$DOMAIN\"]"
