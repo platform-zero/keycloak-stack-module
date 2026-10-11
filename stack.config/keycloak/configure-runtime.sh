@@ -190,11 +190,11 @@ EOF_GROUP
 }
 
 echo "[keycloak-configure] authenticating admin API"
-"$KC" config credentials \
+# Keycloak26.6.2 native documented private input; never password argv.
+KC_CLI_PASSWORD="$KEYCLOAK_ADMIN_PASSWORD" "$KC" config credentials \
   --server "$KEYCLOAK_SERVER" \
   --realm master \
-  --user "$KEYCLOAK_ADMIN_USER" \
-  --password "$KEYCLOAK_ADMIN_PASSWORD" >/dev/null
+  --user "$KEYCLOAK_ADMIN_USER" >/dev/null
 
 echo "[keycloak-configure] verifying realm: $REALM"
 "$KC" get "realms/$REALM" >/dev/null
