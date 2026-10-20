@@ -34,6 +34,8 @@
     { "name": "users" },
     { "name": "developers" },
     { "name": "agents" },
+    { "name": "finance-owner" },
+    { "name": "finance-users" },
     { "name": "onboarding_required" }
   ],
   "clients": [

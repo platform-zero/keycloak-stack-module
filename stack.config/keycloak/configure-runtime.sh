@@ -525,4 +525,11 @@ ensure_confidential_client "vaultwarden" "Vaultwarden" "${VAULTWARDEN_OAUTH_SECR
 ensure_confidential_client "huly" "Huly" "${HULY_OPENID_CLIENT_SECRET:-}" "[\"https://huly.$DOMAIN/_accounts/auth/openid/callback\"]" "[\"https://huly.$DOMAIN\"]"
 # webservices-component-end huly
 
+# webservices-component-start firefly-iii
+# Mounted helper is separately syntax/contract tested.
+# shellcheck source=/dev/null
+source /configure-finance.sh
+configure_finance_identity
+# webservices-component-end firefly-iii
+
 echo "[keycloak-configure] runtime Keycloak clients are ready"
